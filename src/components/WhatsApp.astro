@@ -1,0 +1,40 @@
+---
+import type { Lang } from '../data/site';
+import { ui, whatsappUrl } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+---
+
+<a class="wa" href={whatsappUrl(lang)} target="_blank" rel="noopener" aria-label={ui[lang].whatsappLabel} title={ui[lang].whatsappLabel}>
+  <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+    <path
+      fill="currentColor"
+      d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.200 8.200 0 0 1-4.2-1.150l-.3-.18-3 .78.8-2.9-.2-.3A8.200 8.200 0 1 1 12 20.2Zm4.500-6.100c-.25-.12-1.460-.72-1.690-.8-.230-.080-.390-.120-.560.120-.160.250-.640.800-.780.970-.140.160-.290.180-.530.060-.250-.120-1.040-.380-1.980-1.220-.730-.650-1.230-1.460-1.370-1.700-.140-.250-.020-.380.110-.500.110-.110.250-.290.370-.430.120-.140.160-.250.250-.410.080-.160.040-.310-.020-.430-.060-.120-.560-1.340-.760-1.840-.200-.480-.410-.420-.560-.420h-.480c-.160 0-.430.060-.660.310-.230.250-.860.840-.860 2.050s.880 2.380 1 2.540c.120.160 1.740 2.650 4.210 3.720.590.250 1.050.410 1.410.520.590.190 1.130.160 1.550.100.470-.070 1.460-.600 1.670-1.170.200-.580.200-1.070.140-1.170-.060-.110-.220-.170-.470-.290Z"
+    ></path>
+  </svg>
+</a>
+
+<style>
+  .wa {
+    position: fixed;
+    right: clamp(1rem, 2.5vw, 2rem);
+    bottom: clamp(1rem, 2.5vw, 2rem);
+    z-index: 30;
+    width: 3.25rem;
+    height: 3.25rem;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--ink);
+    color: var(--white);
+    box-shadow: 0 6px 24px rgba(35, 31, 32, 0.18);
+    transition: transform 0.3s ease, background 0.3s ease;
+  }
+  .wa:hover {
+    transform: translateY(-3px);
+    background: #3a3637;
+  }
+</style>

@@ -1,0 +1,192 @@
+---
+import { Image } from 'astro:assets';
+import Layout from '../layouts/Layout.astro';
+import type { Lang } from '../data/site';
+import { site } from '../data/site';
+import { projectImages } from '../data/projects';
+import { routes, ui, whatsappUrl } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = ui[lang];
+const es = lang === 'es';
+const image = projectImages('la-coruna')[1];
+
+const c = es
+  ? {
+      description: 'Obregon Design es un estudio de arquitectura y diseño con oficinas en Hermosillo y McAllen y más de 100 proyectos en México y Estados Unidos.',
+      title: 'Nosotros',
+      lead: 'Un estudio de arquitectura y diseño que trabaja entre México y Estados Unidos.',
+      story: [
+        'Obregon Design nació de una idea sencilla: la buena arquitectura resuelve la vida diaria con claridad. Desde nuestras oficinas en Hermosillo y McAllen hemos desarrollado más de 100 proyectos en dos países.',
+        'Trabajamos casas, comercios, restaurantes, salones de eventos, oficinas y naves industriales. La escala cambia; el método es el mismo: escuchar, ordenar y dibujar hasta que cada decisión tenga una razón.',
+      ],
+      numbers: [
+        ['+100', 'Proyectos'],
+        ['2', 'Países'],
+        ['2', 'Oficinas'],
+      ],
+      philosophyTitle: 'Filosofía',
+      philosophy: [
+        ['Claridad', 'Espacios fáciles de entender y de habitar. Quitamos lo que sobra para que quede lo esencial.'],
+        ['Luz y material', 'La luz natural y los materiales honestos hacen el trabajo. Preferimos pocas piezas, bien resueltas.'],
+        ['Lugar', 'Cada proyecto responde a su clima, a su contexto y a la forma de vivir de quien lo encarga.'],
+        ['Oficio', 'Cuidamos el detalle, del plano a la obra, para que lo construido sea fiel a lo imaginado.'],
+      ],
+      officesTitle: 'Oficinas',
+      cta: 'Trabajemos juntos',
+    }
+  : {
+      description: 'Obregon Design is an architecture and design studio with offices in Hermosillo and McAllen and more than 100 projects in Mexico and the United States.',
+      title: 'About',
+      lead: 'An architecture and design studio working between Mexico and the United States.',
+      story: [
+        'Obregon Design grew from a simple idea: good architecture solves daily life with clarity. From our offices in Hermosillo and McAllen we have developed more than 100 projects in two countries.',
+        'We work on homes, retail, restaurants, event venues, offices and industrial buildings. The scale changes; the method stays the same: listen, organize and draw until every decision has a reason.',
+      ],
+      numbers: [
+        ['100+', 'Projects'],
+        ['2', 'Countries'],
+        ['2', 'Offices'],
+      ],
+      philosophyTitle: 'Philosophy',
+      philosophy: [
+        ['Clarity', 'Spaces that are easy to understand and to live in. We remove what is unnecessary so the essential remains.'],
+        ['Light and material', 'Natural light and honest materials do the work. We prefer few elements, well resolved.'],
+        ['Place', 'Each project responds to its climate, its context and the way its owner lives.'],
+        ['Craft', 'We care for detail, from drawing to site, so that what is built stays true to what was imagined.'],
+      ],
+      officesTitle: 'Offices',
+      cta: "Let's work together",
+    };
+---
+
+<Layout lang={lang} title={c.title} description={c.description} altPath={routes.about[es ? 'en' : 'es']} current="about">
+  <section class="page-head wrap">
+    <span class="label">{c.title}</span>
+    <h1 class="display h1 about__title">{c.lead}</h1>
+  </section>
+
+  <section class="wrap">
+    <Image src={image} alt="" widths={[800, 1280, 1920, 2560]} sizes="(min-width: 1680px) 1568px, 94vw" loading="eager" quality={80} class="about__img" />
+  </section>
+
+  <section class="section">
+    <div class="wrap split">
+      <h2 class="label">{site.name}</h2>
+      <div>
+        <div class="prose about__story">
+          {c.story.map((p) => <p>{p}</p>)}
+        </div>
+        <dl class="numbers">
+          {
+            c.numbers.map(([n, label]) => (
+              <div>
+                <dd class="display h1">{n}</dd>
+                <dt class="label">{label}</dt>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--bone">
+    <div class="wrap split">
+      <h2 class="label">{c.philosophyTitle}</h2>
+      <ol class="principles">
+        {
+          c.philosophy.map(([name, text], i) => (
+            <li>
+              <span class="label">0{i + 1}</span>
+              <h3 class="display h3">{name}</h3>
+              <p>{text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap split">
+      <h2 class="label">{c.officesTitle}</h2>
+      <div class="offices">
+        {
+          site.offices.map((o) => (
+            <div>
+              <p class="display h2">{o.city}</p>
+              <p class="label">{o.region[lang]}</p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--bone cta">
+    <div class="wrap">
+      <h2 class="display h2">{c.cta}</h2>
+      <div class="cta__actions">
+        <a class="btn" href={routes.contact[lang]}>{t.nav.contact}</a>
+        <a class="btn btn--ghost" href={whatsappUrl(lang)} target="_blank" rel="noopener">WhatsApp</a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .about__title {
+    font-size: clamp(2.25rem, 5.2vw, 4.75rem);
+    max-width: 22ch;
+  }
+  .about__img {
+    width: 100%;
+    aspect-ratio: 16 / 8;
+    object-fit: cover;
+  }
+  .about__story p {
+    font-size: 1.1rem;
+  }
+  .numbers {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+    margin-top: 3.5rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--line);
+  }
+  .numbers .label {
+    margin-top: 0.5rem;
+  }
+  .principles {
+    display: grid;
+    gap: 2.75rem clamp(2rem, 4vw, 4rem);
+  }
+  .principles h3 {
+    margin: 0.6rem 0 0.6rem;
+  }
+  .principles p {
+    color: var(--mid);
+    max-width: 38ch;
+  }
+  .offices {
+    display: grid;
+    gap: 2rem;
+  }
+  .offices .label {
+    margin-top: 0.5rem;
+  }
+  .cta + :global(footer) {
+    margin-top: 0;
+  }
+  @media (min-width: 700px) {
+    .principles,
+    .offices {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

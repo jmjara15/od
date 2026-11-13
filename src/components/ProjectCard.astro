@@ -1,0 +1,32 @@
+---
+import { Image } from 'astro:assets';
+import type { Lang } from '../data/site';
+import { cover, type Project } from '../data/projects';
+import { projectUrl, ui } from '../i18n/ui';
+
+interface Props {
+  project: Project;
+  lang: Lang;
+  sizes?: string;
+  eager?: boolean;
+}
+const { project, lang, sizes = '(min-width: 900px) 50vw, 100vw', eager = false } = Astro.props;
+const t = ui[lang];
+---
+
+<a class="card" href={projectUrl(lang, project.slug)}>
+  <div class="card__img">
+    <Image
+      src={cover(project.slug)}
+      alt={`${project.name[lang]}: ${project.summary[lang]}`}
+      widths={[480, 800, 1200, 1600]}
+      sizes={sizes}
+      loading={eager ? 'eager' : 'lazy'}
+      quality={78}
+    />
+  </div>
+  <div class="card__meta">
+    <span class="card__name">{project.name[lang]}</span>
+    <span class="card__info">{t.typology[project.typology]} · {t.country[project.country]}</span>
+  </div>
+</a>

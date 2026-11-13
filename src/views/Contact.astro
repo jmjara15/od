@@ -1,0 +1,224 @@
+---
+import Layout from '../layouts/Layout.astro';
+import type { Lang } from '../data/site';
+import { site } from '../data/site';
+import { routes, ui, whatsappUrl } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = ui[lang];
+const es = lang === 'es';
+
+const c = es
+  ? {
+      description: 'Contacta a Obregon Design: formulario, WhatsApp y correo. Oficinas en Hermosillo, Sonora y McAllen, Texas.',
+      title: 'Contacto',
+      lead: 'Cuéntanos sobre tu proyecto.',
+      intro: 'Escríbenos unas líneas sobre lo que quieres construir o remodelar y te respondemos a la brevedad.',
+      name: 'Nombre',
+      email: 'Correo',
+      phone: 'Teléfono (opcional)',
+      type: 'Tipo de proyecto',
+      types: ['Residencial', 'Comercial', 'Hospitalidad y eventos', 'Interiores', 'Industrial', 'Otro'],
+      place: 'Ubicación del proyecto',
+      places: ['México', 'Estados Unidos'],
+      message: 'Mensaje',
+      send: 'Enviar mensaje',
+      direct: 'Contacto directo',
+      offices: 'Oficinas',
+    }
+  : {
+      description: 'Contact Obregon Design: form, WhatsApp and email. Offices in Hermosillo, Sonora and McAllen, Texas.',
+      title: 'Contact',
+      lead: 'Tell us about your project.',
+      intro: 'Write a few lines about what you want to build or renovate and we will get back to you shortly.',
+      name: 'Name',
+      email: 'Email',
+      phone: 'Phone (optional)',
+      type: 'Project type',
+      types: ['Residential', 'Commercial', 'Hospitality and events', 'Interiors', 'Industrial', 'Other'],
+      place: 'Project location',
+      places: ['Mexico', 'United States'],
+      message: 'Message',
+      send: 'Send message',
+      direct: 'Direct contact',
+      offices: 'Offices',
+    };
+const formName = es ? 'contacto' : 'contact';
+---
+
+<Layout lang={lang} title={c.title} description={c.description} altPath={routes.contact[es ? 'en' : 'es']} current="contact">
+  <section class="page-head wrap">
+    <span class="label">{c.title}</span>
+    <h1 class="display h1">{c.lead}</h1>
+  </section>
+
+  <section class="wrap contact">
+    <form class="form" name={formName} method="POST" action={routes.thanks[lang]} data-netlify="true" netlify-honeypot="empresa">
+      <input type="hidden" name="form-name" value={formName} />
+      <p class="form__hp">
+        <label>No llenar: <input name="empresa" tabindex="-1" autocomplete="off" /></label>
+      </p>
+      <p class="form__intro">{c.intro}</p>
+      <div class="form__row">
+        <label class="field">
+          <span class="label">{c.name}</span>
+          <input type="text" name="nombre" autocomplete="name" required />
+        </label>
+        <label class="field">
+          <span class="label">{c.email}</span>
+          <input type="email" name="correo" autocomplete="email" required />
+        </label>
+      </div>
+      <div class="form__row">
+        <label class="field">
+          <span class="label">{c.phone}</span>
+          <input type="tel" name="telefono" autocomplete="tel" />
+        </label>
+        <label class="field">
+          <span class="label">{c.type}</span>
+          <select name="tipo">
+            {c.types.map((v) => <option>{v}</option>)}
+          </select>
+        </label>
+      </div>
+      <label class="field">
+        <span class="label">{c.place}</span>
+        <select name="ubicacion">
+          {c.places.map((v) => <option>{v}</option>)}
+        </select>
+      </label>
+      <label class="field">
+        <span class="label">{c.message}</span>
+        <textarea name="mensaje" rows="5" required></textarea>
+      </label>
+      <button class="btn" type="submit">{c.send}</button>
+    </form>
+
+    <aside class="aside">
+      <div>
+        <h2 class="label">{c.direct}</h2>
+        <a class="aside__big display" href={whatsappUrl(lang)} target="_blank" rel="noopener">WhatsApp</a>
+        <p>{site.whatsappDisplay}</p>
+        <a class="aside__big display" href={`mailto:${site.email}`}>{es ? 'Correo' : 'Email'}</a>
+        <p>{site.email}</p>
+      </div>
+      <div>
+        <h2 class="label">{c.offices}</h2>
+        {
+          site.offices.map((o) => (
+            <p class="aside__office">
+              <span class="display">{o.city}</span>
+              {o.region[lang]}
+            </p>
+          ))
+        }
+      </div>
+    </aside>
+  </section>
+</Layout>
+
+<style>
+  .contact {
+    display: grid;
+    gap: clamp(3rem, 7vw, 7rem);
+    padding-bottom: clamp(4rem, 10vw, 9rem);
+  }
+  .form {
+    display: grid;
+    gap: 2rem;
+  }
+  .form__hp {
+    position: absolute;
+    left: -9999px;
+  }
+  .form__intro {
+    color: var(--mid);
+    max-width: 48ch;
+  }
+  .form__row {
+    display: grid;
+    gap: 2rem;
+  }
+  .field {
+    display: grid;
+    gap: 0.4rem;
+  }
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    font: inherit;
+    font-weight: 300;
+    color: var(--ink);
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--taupe);
+    border-radius: 0;
+    padding: 0.6rem 0;
+    transition: border-color 0.3s ease;
+  }
+  .field textarea {
+    resize: vertical;
+    min-height: 8rem;
+  }
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    outline: none;
+    border-bottom-color: var(--ink);
+    box-shadow: 0 1px 0 var(--ink);
+  }
+  .form .btn {
+    justify-self: start;
+    cursor: pointer;
+  }
+  .aside {
+    display: grid;
+    gap: 3rem;
+    align-content: start;
+  }
+  .aside .label {
+    margin-bottom: 1.25rem;
+  }
+  .aside__big {
+    display: inline-block;
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    border-bottom: 1px solid var(--ink);
+    margin-top: 0.5rem;
+    transition: color 0.3s ease, border-color 0.3s ease;
+  }
+  .aside__big:hover {
+    color: var(--mid);
+    border-color: var(--mid);
+  }
+  .aside__big + p {
+    color: var(--mid);
+    margin: 0.4rem 0 1.5rem;
+  }
+  .aside__office {
+    color: var(--mid);
+    margin-bottom: 1.25rem;
+  }
+  .aside__office .display {
+    display: block;
+    font-size: 1.6rem;
+    color: var(--ink);
+  }
+  @media (min-width: 640px) {
+    .form__row {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 960px) {
+    .contact {
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    }
+    .aside {
+      padding-left: clamp(2rem, 4vw, 4rem);
+      border-left: 1px solid var(--line);
+    }
+  }
+</style>

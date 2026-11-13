@@ -1,0 +1,12 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { routes } from '../i18n/ui';
+---
+
+<Layout lang="es" title="Página no encontrada" description="Página no encontrada." altPath="/en/">
+  <section class="page-head wrap" style="min-height:80svh">
+    <span class="label">404</span>
+    <h1 class="display h1">Página no encontrada</h1>
+    <p style="margin:2rem 0 3rem"><a class="link" href={routes.home.es}>Volver al inicio</a></p>
+  </section>
+</Layout>

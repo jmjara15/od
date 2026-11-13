@@ -1,0 +1,175 @@
+---
+import { Image } from 'astro:assets';
+import Layout from '../layouts/Layout.astro';
+import type { Lang } from '../data/site';
+import { cover, projectImages, projects, type Project } from '../data/projects';
+import { projectUrl, routes, ui } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  project: Project;
+}
+const { lang, project } = Astro.props;
+const t = ui[lang];
+const other: Lang = lang === 'es' ? 'en' : 'es';
+const [main, ...gallery] = projectImages(project.slug);
+const next = projects[(projects.findIndex((p) => p.slug === project.slug) + 1) % projects.length];
+const alt = (i: number) => `${project.name[lang]}, ${lang === 'es' ? 'imagen' : 'image'} ${i}`;
+---
+
+<Layout
+  lang={lang}
+  title={project.name[lang]}
+  description={project.summary[lang]}
+  altPath={projectUrl(other, project.slug)}
+  current="projects"
+  overHero
+  image={main}
+>
+  <section class="phero">
+    <Image src={main} alt={alt(1)} widths={[800, 1280, 1920, 2560]} sizes="100vw" loading="eager" fetchpriority="high" quality={82} />
+    <div class="phero__shade" aria-hidden="true"></div>
+  </section>
+
+  <section class="wrap pintro">
+    <div>
+      <p class="label">{t.typology[project.typology]} · {t.country[project.country]}</p>
+      <h1 class="display h1">{project.name[lang]}</h1>
+    </div>
+    <div class="pintro__cols">
+      <dl class="sheet">
+        <div>
+          <dt class="label">{t.sheet.location}</dt>
+          <dd>{t.country[project.country]}</dd>
+        </div>
+        <div>
+          <dt class="label">{t.sheet.year}</dt>
+          <dd>{project.year}</dd>
+        </div>
+        <div>
+          <dt class="label">{t.sheet.typology}</dt>
+          <dd>{t.typology[project.typology]}</dd>
+        </div>
+        <div>
+          <dt class="label">{t.sheet.scope}</dt>
+          <dd>{project.scope[lang]}</dd>
+        </div>
+      </dl>
+      <div class="prose">
+        <p class="lead">{project.summary[lang]}</p>
+        {project.body[lang].map((p) => <p>{p}</p>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap gallery">
+    {
+      gallery.map((img, i) => (
+        <figure>
+          <Image src={img} alt={alt(i + 2)} widths={[800, 1280, 1920, 2560]} sizes="(min-width: 1680px) 1568px, 94vw" loading="lazy" quality={82} />
+        </figure>
+      ))
+    }
+  </section>
+
+  <a class="next" href={projectUrl(lang, next.slug)}>
+    <Image src={cover(next.slug)} alt="" widths={[800, 1280, 1920]} sizes="100vw" loading="lazy" quality={70} />
+    <div class="next__text wrap">
+      <span class="label">{t.nextProject}</span>
+      <span class="display h1">{next.name[lang]}</span>
+    </div>
+  </a>
+</Layout>
+
+<style>
+  .phero {
+    position: relative;
+    height: min(100svh, 62vw);
+    min-height: 22rem;
+    background: var(--bone);
+  }
+  .phero :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .phero__shade {
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 9rem;
+    background: linear-gradient(180deg, rgba(35, 31, 32, 0.5), rgba(35, 31, 32, 0));
+  }
+  .pintro {
+    padding-block: clamp(3rem, 7vw, 6rem);
+    display: grid;
+    gap: clamp(2.5rem, 5vw, 4.5rem);
+  }
+  .pintro .label {
+    display: block;
+    margin-bottom: 1rem;
+  }
+  .pintro__cols {
+    display: grid;
+    gap: 3rem;
+  }
+  .sheet {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem 2rem;
+    align-content: start;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--ink);
+  }
+  .sheet .label {
+    margin-bottom: 0.3rem;
+  }
+  .prose .lead {
+    color: var(--ink);
+    margin-bottom: 2rem;
+    max-width: 36ch;
+  }
+  .gallery {
+    display: grid;
+    gap: clamp(1.25rem, 2.5vw, 2.5rem);
+    padding-bottom: clamp(4rem, 9vw, 8rem);
+  }
+  .gallery :global(img) {
+    width: 100%;
+  }
+  .next {
+    position: relative;
+    display: block;
+    height: clamp(18rem, 45vw, 30rem);
+    overflow: hidden;
+    color: var(--white);
+    background: var(--ink);
+  }
+  .next :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.55;
+    transition: opacity 0.6s ease, transform 1.4s ease;
+  }
+  .next:hover :global(img) {
+    opacity: 0.75;
+    transform: scale(1.03);
+  }
+  .next__text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+  .next .label {
+    color: var(--white);
+  }
+  @media (min-width: 900px) {
+    .pintro__cols {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+      gap: clamp(2rem, 5vw, 5rem);
+    }
+  }
+</style>

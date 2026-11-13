@@ -1,0 +1,365 @@
+---
+import { Image } from 'astro:assets';
+import Layout from '../layouts/Layout.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import type { Lang } from '../data/site';
+import { site } from '../data/site';
+import { cover, featured } from '../data/projects';
+import { projectUrl, routes, ui, whatsappUrl } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = ui[lang];
+const es = lang === 'es';
+const all = featured();
+const slides = all.slice(0, 5);
+
+const copy = es
+  ? {
+      description:
+        'Obregon Design es un estudio de arquitectura y diseño con oficinas en Hermosillo y McAllen. Más de 100 proyectos en México y Estados Unidos.',
+      statement: 'Diseñamos espacios serenos y precisos, pensados para quienes los viven.',
+      intro:
+        'Somos un estudio de arquitectura y diseño que trabaja en México y Estados Unidos. Acompañamos cada proyecto desde la primera idea hasta la obra.',
+      selected: 'Proyectos seleccionados',
+      servicesTitle: 'Servicios',
+      services: [
+        ['Arquitectura', 'Casas, comercios, espacios para eventos y naves industriales, del concepto al proyecto ejecutivo.'],
+        ['Diseño', 'Interiores, mobiliario y gabinetes a la medida, visualización y supervisión de obra.'],
+      ],
+      servicesLink: 'Conocer los servicios',
+      presence: 'Dos países, un mismo estudio',
+      presenceText: 'Más de 100 proyectos desarrollados entre México y Estados Unidos.',
+      cta: '¿Tienes un proyecto en mente?',
+      ctaBtn: 'Contacto',
+    }
+  : {
+      description:
+        'Obregon Design is an architecture and design studio with offices in Hermosillo and McAllen. More than 100 projects in Mexico and the United States.',
+      statement: 'We design calm, precise spaces, made for the people who live in them.',
+      intro:
+        'We are an architecture and design studio working in Mexico and the United States. We stay with each project from the first idea through construction.',
+      selected: 'Selected projects',
+      servicesTitle: 'Services',
+      services: [
+        ['Architecture', 'Homes, retail, event venues and industrial buildings, from concept to construction documents.'],
+        ['Design', 'Interiors, custom furniture and cabinetry, visualization and construction supervision.'],
+      ],
+      servicesLink: 'Explore our services',
+      presence: 'Two countries, one studio',
+      presenceText: 'More than 100 projects developed across Mexico and the United States.',
+      cta: 'Have a project in mind?',
+      ctaBtn: 'Contact',
+    };
+---
+
+<Layout lang={lang} description={copy.description} altPath={routes.home[es ? 'en' : 'es']} overHero>
+  <section class="hero" data-hero>
+    {
+      slides.map((p, i) => (
+        <div class:list={['hero__slide', { 'is-active': i === 0 }]} data-slide>
+          <Image
+            src={cover(p.slug)}
+            alt={`${p.name[lang]}: ${p.summary[lang]}`}
+            widths={[800, 1280, 1920, 2560]}
+            sizes="100vw"
+            loading={i === 0 ? 'eager' : 'lazy'}
+            fetchpriority={i === 0 ? 'high' : 'auto'}
+            quality={80}
+          />
+        </div>
+      ))
+    }
+    <div class="hero__shade" aria-hidden="true"></div>
+    <div class="hero__content wrap">
+      <h1 class="display hero__title">{t.tagline}</h1>
+      <div class="hero__foot">
+        <div class="hero__captions">
+          {
+            slides.map((p, i) => (
+              <a href={projectUrl(lang, p.slug)} class:list={['hero__caption', { 'is-active': i === 0 }]} data-caption>
+                <span class="hero__name">{p.name[lang]}</span>
+                <span class="hero__type">
+                  {t.typology[p.typology]} · {t.country[p.country]}
+                </span>
+              </a>
+            ))
+          }
+        </div>
+        <div class="hero__dots" role="tablist" aria-label={t.nav.projects}>
+          {
+            slides.map((p, i) => (
+              <button type="button" class:list={['hero__dot', { 'is-active': i === 0 }]} data-dot={i} aria-label={p.name[lang]} />
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap split">
+      <p class="label">{site.name}</p>
+      <div>
+        <p class="display h2 statement">{copy.statement}</p>
+        <p class="lead intro">{copy.intro}</p>
+        <a class="link" href={routes.about[lang]}>{t.nav.about}</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section selected">
+    <div class="wrap">
+      <div class="selected__head">
+        <h2 class="label">{copy.selected}</h2>
+        <a class="link" href={routes.projects[lang]}>{t.allProjects}</a>
+      </div>
+      <div class="selected__grid">
+        {all.slice(0, 5).map((p) => <ProjectCard project={p} lang={lang} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--bone">
+    <div class="wrap split">
+      <h2 class="label">{copy.servicesTitle}</h2>
+      <div>
+        <div class="services">
+          {
+            copy.services.map(([name, text]) => (
+              <div>
+                <h3 class="display h2">{name}</h3>
+                <p>{text}</p>
+              </div>
+            ))
+          }
+        </div>
+        <a class="link" href={routes.services[lang]}>{copy.servicesLink}</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap split">
+      <h2 class="label">{copy.presence}</h2>
+      <div>
+        <p class="lead">{copy.presenceText}</p>
+        <div class="offices">
+          {
+            site.offices.map((o) => (
+              <div>
+                <p class="display h2">{o.city}</p>
+                <p class="label">{o.region[lang]}</p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--bone cta">
+    <div class="wrap">
+      <h2 class="display h2">{copy.cta}</h2>
+      <div class="cta__actions">
+        <a class="btn" href={routes.contact[lang]}>{copy.ctaBtn}</a>
+        <a class="btn btn--ghost" href={whatsappUrl(lang)} target="_blank" rel="noopener">WhatsApp</a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<script>
+  const hero = document.querySelector<HTMLElement>('[data-hero]');
+  if (hero) {
+    const slides = [...hero.querySelectorAll('[data-slide]')];
+    const captions = [...hero.querySelectorAll('[data-caption]')];
+    const dots = [...hero.querySelectorAll<HTMLButtonElement>('[data-dot]')];
+    let index = 0;
+    let timer: number | undefined;
+
+    const show = (next: number) => {
+      index = (next + slides.length) % slides.length;
+      [slides, captions, dots].forEach((group) => group.forEach((el, i) => el.classList.toggle('is-active', i === index)));
+      slides[index].querySelector('img')?.setAttribute('loading', 'eager');
+    };
+    const start = () => {
+      window.clearInterval(timer);
+      timer = window.setInterval(() => show(index + 1), 6000);
+    };
+    dots.forEach((dot) =>
+      dot.addEventListener('click', () => {
+        show(Number(dot.dataset.dot));
+        start();
+      }),
+    );
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) start();
+  }
+</script>
+
+<style>
+  .hero {
+    position: relative;
+    height: 100svh;
+    min-height: 34rem;
+    color: var(--white);
+    background: var(--ink);
+    overflow: hidden;
+  }
+  .hero__slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 1.6s ease;
+  }
+  .hero__slide.is-active {
+    opacity: 1;
+  }
+  .hero__slide :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.06);
+    transition: transform 8s ease-out;
+  }
+  .hero__slide.is-active :global(img) {
+    transform: scale(1);
+  }
+  .hero__shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(35, 31, 32, 0.45) 0%, rgba(35, 31, 32, 0) 28%, rgba(35, 31, 32, 0) 55%, rgba(35, 31, 32, 0.6) 100%);
+  }
+  .hero__content {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 2rem;
+    padding-bottom: clamp(1.75rem, 4vw, 3rem);
+  }
+  .hero__title {
+    font-size: clamp(2.75rem, 8vw, 7rem);
+    max-width: 12ch;
+    text-shadow: 0 1px 30px rgba(35, 31, 32, 0.25);
+  }
+  .hero__foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 2rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.4);
+    padding-right: 4rem;
+  }
+  .hero__captions {
+    display: grid;
+  }
+  .hero__caption {
+    grid-area: 1 / 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 1rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.8s ease, visibility 0.8s;
+  }
+  .hero__caption.is-active {
+    opacity: 1;
+    visibility: visible;
+  }
+  .hero__name {
+    font-family: var(--display);
+    font-size: 1.15rem;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+  }
+  .hero__type {
+    font-size: 0.8rem;
+    opacity: 0.85;
+  }
+  .hero__dots {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .hero__dot {
+    width: 1.75rem;
+    height: 1.5rem;
+    position: relative;
+  }
+  .hero__dot::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.4;
+    transition: opacity 0.4s ease, height 0.4s ease;
+  }
+  .hero__dot.is-active::before {
+    opacity: 1;
+    height: 2px;
+  }
+  .statement {
+    max-width: 18ch;
+    margin-bottom: 2rem;
+  }
+  .intro {
+    color: var(--mid);
+    margin-bottom: 2.5rem;
+  }
+  .selected {
+    padding-top: 0;
+  }
+  .selected__head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    padding-bottom: 2rem;
+  }
+  .selected__grid {
+    display: grid;
+    gap: clamp(2.5rem, 4vw, 4rem) clamp(1.25rem, 2vw, 2rem);
+  }
+  .services {
+    display: grid;
+    gap: 2.5rem;
+    margin-bottom: 3rem;
+  }
+  .services p {
+    margin-top: 0.75rem;
+    max-width: 40ch;
+    color: var(--mid);
+  }
+  .offices {
+    display: grid;
+    gap: 2rem;
+    margin-top: 3rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--line);
+  }
+  .offices .label {
+    margin-top: 0.5rem;
+  }
+  @media (min-width: 700px) {
+    .selected__grid,
+    .services,
+    .offices {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .selected__grid > :global(:first-child) {
+      grid-column: 1 / -1;
+    }
+    .selected__grid > :global(:first-child .card__img) {
+      aspect-ratio: 16 / 8;
+    }
+  }
+</style>

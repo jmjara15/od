@@ -1,0 +1,115 @@
+---
+import Logo from './Logo.astro';
+import { site, type Lang } from '../data/site';
+import { routes, ui, whatsappUrl } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = ui[lang];
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="wrap footer__grid">
+    <div class="footer__brand">
+      <a href={routes.home[lang]}><Logo variant="stacked" /></a>
+    </div>
+    <div>
+      <p class="label">{lang === 'es' ? 'Oficinas' : 'Offices'}</p>
+      <ul>
+        {
+          site.offices.map((o) => (
+            <li>
+              {o.city}
+              <span>{o.region[lang]}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+    <div>
+      <p class="label">{t.nav.contact}</p>
+      <ul>
+        <li><a href={`mailto:${site.email}`}>{site.email}</a></li>
+        <li><a href={whatsappUrl(lang)} target="_blank" rel="noopener">WhatsApp {site.whatsappDisplay}</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="label">{lang === 'es' ? 'Sitio' : 'Site'}</p>
+      <ul>
+        <li><a href={routes.projects[lang]}>{t.nav.projects}</a></li>
+        <li><a href={routes.about[lang]}>{t.nav.about}</a></li>
+        <li><a href={routes.services[lang]}>{t.nav.services}</a></li>
+        <li><a href={routes.contact[lang]}>{t.nav.contact}</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="wrap footer__base">
+    <span>© {year} {site.name}. {t.rights}</span>
+    <span>{t.footerLine}</span>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: var(--ink);
+    color: var(--bone);
+    padding-top: clamp(3.5rem, 8vw, 6rem);
+    font-size: 0.9rem;
+  }
+  .footer__grid {
+    display: grid;
+    gap: 2.5rem;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .footer__brand {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-start;
+  }
+  .footer .label {
+    color: var(--taupe);
+    margin-bottom: 1rem;
+  }
+  .footer li {
+    overflow-wrap: anywhere;
+    padding-block: 0.2rem;
+  }
+  .footer li span {
+    display: block;
+    color: var(--taupe);
+    font-size: 0.8rem;
+  }
+  .footer a {
+    transition: color 0.3s ease;
+  }
+  .footer a:hover {
+    color: var(--taupe);
+  }
+  .footer__base {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 2rem;
+    margin-top: clamp(3rem, 6vw, 5rem);
+    padding-block: 1.5rem;
+    border-top: 1px solid rgba(241, 241, 242, 0.15);
+    color: var(--taupe);
+    font-size: 0.78rem;
+  }
+  @media (min-width: 560px) {
+    .footer__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 900px) {
+    .footer__grid {
+      grid-template-columns: 1.4fr 1fr 1.3fr 0.8fr;
+    }
+    .footer__brand {
+      grid-column: auto;
+    }
+  }
+</style>
