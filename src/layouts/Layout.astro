@@ -1,0 +1,63 @@
+---
+import '@fontsource/barlow-condensed/300.css';
+import '@fontsource/barlow-condensed/400.css';
+import '@fontsource/barlow-condensed/500.css';
+import '@fontsource-variable/inter';
+import '../styles/global.css';
+import { getImage } from 'astro:assets';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import WhatsApp from '../components/WhatsApp.astro';
+import { site, type Lang } from '../data/site';
+import { cover } from '../data/projects';
+import { ui } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  title?: string;
+  description: string;
+  altPath: string; // la misma página en el otro idioma
+  current?: string;
+  overHero?: boolean; // menú blanco sobre imagen
+  image?: ImageMetadata;
+}
+
+const { lang, title, description, altPath, current, overHero = false, image } = Astro.props;
+const fullTitle = title ? `${title} | ${site.name}` : `${site.name} | ${ui[lang].tagline}`;
+const canonical = new URL(Astro.url.pathname, site.url).href;
+const altUrl = new URL(altPath, site.url).href;
+const og = await getImage({ src: image ?? cover('garay-eventos'), width: 1200, height: 630, format: 'jpg' });
+const ogUrl = new URL(og.src, site.url).href;
+const other: Lang = lang === 'es' ? 'en' : 'es';
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang={lang} href={canonical} />
+    <link rel="alternate" hreflang={other} href={altUrl} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogUrl} />
+    <meta property="og:locale" content={lang === 'es' ? 'es_MX' : 'en_US'} />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <Header lang={lang} altPath={altPath} current={current} overHero={overHero} />
+    <main>
+      <slot />
+    </main>
+    <Footer lang={lang} />
+    <WhatsApp lang={lang} />
+  </body>
+</html>

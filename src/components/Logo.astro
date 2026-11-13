@@ -1,0 +1,50 @@
+---
+import mark from '../assets/logo/mark.svg?raw';
+import word from '../assets/logo/word.svg?raw';
+
+interface Props {
+  variant?: 'horizontal' | 'stacked' | 'mark';
+}
+const { variant = 'horizontal' } = Astro.props;
+---
+
+<span class:list={['logo', `logo--${variant}`]}>
+  <span class="logo__mark" set:html={mark} />
+  {variant !== 'mark' && <span class="logo__word" set:html={word} />}
+  <span class="sr-only">Obregon Design</span>
+</span>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.85rem;
+    color: inherit;
+  }
+  .logo :global(svg) {
+    display: block;
+    height: 100%;
+    width: auto;
+    fill: currentColor;
+  }
+  .logo__mark {
+    height: 2rem;
+  }
+  .logo__word {
+    height: 0.8rem;
+  }
+  .logo--stacked {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.4rem;
+  }
+  .logo--stacked .logo__mark {
+    height: 4.5rem;
+  }
+  .logo--stacked .logo__word {
+    height: 1.15rem;
+  }
+  .logo--mark .logo__mark {
+    height: 2.5rem;
+  }
+</style>

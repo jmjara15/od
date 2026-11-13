@@ -1,0 +1,206 @@
+---
+import { Image } from 'astro:assets';
+import Layout from '../layouts/Layout.astro';
+import type { Lang } from '../data/site';
+import { projectImages } from '../data/projects';
+import { routes, ui, whatsappUrl } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = ui[lang];
+const es = lang === 'es';
+const imgArch = projectImages('residencia-o')[1];
+const imgDesign = projectImages('casa-p')[0];
+
+const c = es
+  ? {
+      description: 'Servicios de Obregon Design: arquitectura, interiores, mobiliario y gabinetes, renders y supervisión de obra en México y Estados Unidos.',
+      title: 'Servicios',
+      lead: 'Arquitectura y diseño, de la primera idea a la obra terminada.',
+      blocks: [
+        {
+          name: 'Arquitectura',
+          text: 'Proyectamos obra nueva, ampliaciones y remodelaciones. Entregamos desde el concepto hasta el proyecto ejecutivo listo para construir.',
+          items: ['Residencial', 'Comercial y restaurantes', 'Salones y espacios para eventos', 'Oficinas', 'Industrial', 'Espacio público y paisaje'],
+        },
+        {
+          name: 'Diseño',
+          text: 'Diseñamos el interior con el mismo rigor que el edificio, y lo mostramos antes de construirlo.',
+          items: ['Diseño de interiores', 'Mobiliario y gabinetes a la medida', 'Renders y visualización', 'Selección de materiales y acabados', 'Supervisión de obra'],
+        },
+      ],
+      processTitle: 'Proceso',
+      steps: [
+        ['Concepto', 'Escuchamos lo que necesitas, estudiamos el sitio y proponemos la idea que ordena el proyecto.'],
+        ['Proyecto', 'Desarrollamos plantas, fachadas, materiales y renders hasta que el diseño queda definido.'],
+        ['Ejecutivo', 'Preparamos los planos y detalles técnicos necesarios para cotizar y construir.'],
+        ['Obra', 'Acompañamos la construcción para que lo edificado sea fiel al proyecto.'],
+      ],
+      cta: 'Cuéntanos qué quieres construir',
+    }
+  : {
+      description: 'Obregon Design services: architecture, interiors, custom furniture and cabinetry, renderings and construction supervision in Mexico and the United States.',
+      title: 'Services',
+      lead: 'Architecture and design, from the first idea to the finished building.',
+      blocks: [
+        {
+          name: 'Architecture',
+          text: 'We design new buildings, additions and renovations, from concept through construction documents ready to build.',
+          items: ['Residential', 'Retail and restaurants', 'Event venues', 'Offices', 'Industrial', 'Public space and landscape'],
+        },
+        {
+          name: 'Design',
+          text: 'We design the interior with the same rigor as the building, and we show it before it is built.',
+          items: ['Interior design', 'Custom furniture and cabinetry', 'Renderings and visualization', 'Materials and finishes selection', 'Construction supervision'],
+        },
+      ],
+      processTitle: 'Process',
+      steps: [
+        ['Concept', 'We listen to what you need, study the site and propose the idea that organizes the project.'],
+        ['Design', 'We develop plans, elevations, materials and renderings until the design is defined.'],
+        ['Documents', 'We prepare the drawings and technical details needed to price and build.'],
+        ['Construction', 'We follow the build so that what is constructed stays true to the design.'],
+      ],
+      cta: 'Tell us what you want to build',
+    };
+const images = [imgArch, imgDesign];
+---
+
+<Layout lang={lang} title={c.title} description={c.description} altPath={routes.services[es ? 'en' : 'es']} current="services">
+  <section class="page-head wrap">
+    <span class="label">{c.title}</span>
+    <h1 class="display h1 services__title">{c.lead}</h1>
+  </section>
+
+  {
+    c.blocks.map((b, i) => (
+      <section class="wrap block">
+        <div class:list={['block__grid', { 'block__grid--flip': i % 2 === 1 }]}>
+          <div class="block__img">
+            <Image src={images[i]} alt="" widths={[640, 960, 1400, 1920]} sizes="(min-width: 900px) 55vw, 94vw" loading={i === 0 ? 'eager' : 'lazy'} quality={80} />
+          </div>
+          <div class="block__text">
+            <span class="label">0{i + 1}</span>
+            <h2 class="display h1">{b.name}</h2>
+            <p class="lead">{b.text}</p>
+            <ul>
+              {b.items.map((item) => <li>{item}</li>)}
+            </ul>
+          </div>
+        </div>
+      </section>
+    ))
+  }
+
+  <section class="section section--bone process">
+    <div class="wrap">
+      <h2 class="label">{c.processTitle}</h2>
+      <ol class="steps">
+        {
+          c.steps.map(([name, text], i) => (
+            <li>
+              <span class="display h1 steps__n">0{i + 1}</span>
+              <h3 class="display h3">{name}</h3>
+              <p>{text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section cta">
+    <div class="wrap">
+      <h2 class="display h2">{c.cta}</h2>
+      <div class="cta__actions">
+        <a class="btn" href={routes.contact[lang]}>{t.nav.contact}</a>
+        <a class="btn btn--ghost" href={whatsappUrl(lang)} target="_blank" rel="noopener">WhatsApp</a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .services__title {
+    font-size: clamp(2.25rem, 5.2vw, 4.75rem);
+    max-width: 20ch;
+  }
+  .block {
+    padding-bottom: clamp(3.5rem, 8vw, 7rem);
+  }
+  .block__grid {
+    display: grid;
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: center;
+  }
+  .block__img {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--bone);
+  }
+  .block__img :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .block__text .label {
+    display: block;
+    margin-bottom: 0.75rem;
+  }
+  .block__text .lead {
+    margin: 1.5rem 0 2rem;
+    color: var(--mid);
+    font-size: 1.15rem;
+    max-width: 40ch;
+  }
+  .block__text li {
+    padding-block: 0.7rem;
+    border-top: 1px solid var(--line);
+  }
+  .block__text li:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+  .process .label {
+    display: block;
+    margin-bottom: 3rem;
+  }
+  .steps {
+    display: grid;
+    gap: 3rem clamp(1.5rem, 3vw, 3rem);
+  }
+  .steps li {
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--ink);
+  }
+  .steps__n {
+    display: block;
+    color: var(--taupe);
+    margin-bottom: 1.5rem;
+  }
+  .steps p {
+    margin-top: 0.75rem;
+    color: var(--mid);
+    max-width: 34ch;
+  }
+  @media (min-width: 900px) {
+    .block__grid {
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    }
+    .block__grid--flip .block__img {
+      order: 2;
+    }
+    .block__grid--flip {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+    }
+    .steps {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 600px) and (max-width: 899px) {
+    .steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

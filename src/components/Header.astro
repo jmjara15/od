@@ -1,0 +1,202 @@
+---
+import Logo from './Logo.astro';
+import type { Lang } from '../data/site';
+import { routes, ui } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  altPath: string;
+  current?: string;
+  overHero?: boolean;
+}
+const { lang, altPath, current, overHero = false } = Astro.props;
+const t = ui[lang];
+const items = (['projects', 'about', 'services', 'contact'] as const).map((key) => ({
+  key,
+  label: t.nav[key],
+  href: routes[key][lang],
+}));
+---
+
+<header class:list={['header', { 'header--over': overHero }]} data-header>
+  <div class="header__bar wrap">
+    <a href={routes.home[lang]} class="header__logo" aria-label="Obregon Design">
+      <Logo />
+    </a>
+    <nav class="header__nav" aria-label={t.menu}>
+      {
+        items.map((item) => (
+          <a href={item.href} aria-current={current === item.key ? 'page' : undefined}>
+            {item.label}
+          </a>
+        ))
+      }
+      <span class="header__lang">
+        <a href={lang === 'es' ? Astro.url.pathname : altPath} aria-current={lang === 'es' ? 'true' : undefined} hreflang="es" lang="es">ES</a>
+        <span aria-hidden="true">/</span>
+        <a href={lang === 'en' ? Astro.url.pathname : altPath} aria-current={lang === 'en' ? 'true' : undefined} hreflang="en" lang="en">EN</a>
+      </span>
+    </nav>
+    <button class="header__toggle" type="button" aria-expanded="false" aria-controls="menu" data-menu-toggle>
+      <span data-open-label>{t.menu}</span>
+      <span data-close-label hidden>{t.close}</span>
+    </button>
+  </div>
+</header>
+
+<div class="menu" id="menu" data-menu hidden>
+  <nav class="menu__nav">
+    {
+      items.map((item) => (
+        <a href={item.href} class="display">
+          {item.label}
+        </a>
+      ))
+    }
+  </nav>
+  <div class="menu__lang label">
+    <a href={lang === 'es' ? Astro.url.pathname : altPath} aria-current={lang === 'es' ? 'true' : undefined}>Español</a>
+    <span aria-hidden="true">/</span>
+    <a href={lang === 'en' ? Astro.url.pathname : altPath} aria-current={lang === 'en' ? 'true' : undefined}>English</a>
+  </div>
+</div>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  const menu = document.querySelector<HTMLElement>('[data-menu]');
+  const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+
+  const onScroll = () => header?.classList.toggle('is-scrolled', window.scrollY > 40);
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  toggle?.addEventListener('click', () => {
+    const open = toggle.getAttribute('aria-expanded') !== 'true';
+    toggle.setAttribute('aria-expanded', String(open));
+    if (menu) menu.hidden = !open;
+    header?.classList.toggle('is-open', open);
+    document.documentElement.style.overflow = open ? 'hidden' : '';
+    toggle.querySelector<HTMLElement>('[data-open-label]')!.hidden = open;
+    toggle.querySelector<HTMLElement>('[data-close-label]')!.hidden = !open;
+  });
+</script>
+
+<style>
+  .header {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 50;
+    height: var(--header-h);
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(10px);
+    color: var(--ink);
+    border-bottom: 1px solid transparent;
+    transition: background 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+  }
+  .header.is-scrolled {
+    border-bottom-color: var(--line);
+  }
+  .header--over:not(.is-scrolled):not(.is-open) {
+    background: transparent;
+    backdrop-filter: none;
+    color: var(--white);
+  }
+  .header.is-open {
+    background: var(--white);
+    backdrop-filter: none;
+  }
+  .header__bar {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+  .header__logo {
+    display: inline-flex;
+  }
+  .header__nav {
+    display: none;
+    align-items: center;
+    gap: clamp(1.5rem, 3vw, 3rem);
+    font-family: var(--display);
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+  }
+  .header__nav a {
+    position: relative;
+    padding-block: 0.4rem;
+  }
+  .header__nav > a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0.2em;
+    bottom: 0;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.35s ease;
+  }
+  .header__nav > a:hover::after,
+  .header__nav > a[aria-current='page']::after {
+    transform: scaleX(1);
+  }
+  .header__lang {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0.95;
+  }
+  .header__lang a:not([aria-current]),
+  .menu__lang a:not([aria-current]) {
+    opacity: 0.5;
+  }
+  .header__lang a:hover,
+  .menu__lang a:hover {
+    opacity: 1;
+  }
+  .header__toggle {
+    font-family: var(--display);
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    padding: 0.75rem 0;
+  }
+  .menu {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    background: var(--white);
+    padding: calc(var(--header-h) + 3rem) var(--pad) 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .menu[hidden] {
+    display: none;
+  }
+  .menu__nav {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .menu__nav a {
+    font-size: clamp(2.5rem, 11vw, 4rem);
+  }
+  .menu__lang {
+    display: flex;
+    gap: 0.75rem;
+    color: var(--ink);
+  }
+  @media (min-width: 860px) {
+    .header__nav {
+      display: flex;
+    }
+    .header__toggle {
+      display: none;
+    }
+  }
+</style>

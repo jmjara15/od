@@ -1,0 +1,35 @@
+---
+import Layout from '../layouts/Layout.astro';
+import type { Lang } from '../data/site';
+import { routes, ui } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const es = lang === 'es';
+---
+
+<Layout
+  lang={lang}
+  title={es ? 'Gracias' : 'Thank you'}
+  description={es ? 'Recibimos tu mensaje.' : 'We received your message.'}
+  altPath={routes.thanks[es ? 'en' : 'es']}
+>
+  <section class="page-head wrap thanks">
+    <span class="label">{ui[lang].nav.contact}</span>
+    <h1 class="display h1">{es ? 'Gracias por escribirnos.' : 'Thank you for reaching out.'}</h1>
+    <p class="lead">{es ? 'Recibimos tu mensaje y te responderemos muy pronto.' : 'We received your message and will get back to you very soon.'}</p>
+    <a class="link" href={routes.projects[lang]}>{ui[lang].allProjects}</a>
+  </section>
+</Layout>
+
+<style>
+  .thanks {
+    min-height: 80svh;
+  }
+  .thanks .lead {
+    margin: 2rem 0 3rem;
+    color: var(--mid);
+  }
+</style>

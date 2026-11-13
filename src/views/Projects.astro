@@ -1,0 +1,294 @@
+---
+import { Image } from 'astro:assets';
+import Layout from '../layouts/Layout.astro';
+import type { Lang } from '../data/site';
+import { cover, projects, type Country, type Typology } from '../data/projects';
+import { projectUrl, routes, ui } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = ui[lang];
+const es = lang === 'es';
+const typologies = [...new Set(projects.map((p) => p.typology))] as Typology[];
+const countries = [...new Set(projects.map((p) => p.country))] as Country[];
+const description = es
+  ? 'Portafolio de Obregon Design: proyectos residenciales, comerciales, de hospitalidad, interiores, industriales y urbanos en México y Estados Unidos.'
+  : 'Obregon Design portfolio: residential, commercial, hospitality, interiors, industrial and urban projects in Mexico and the United States.';
+---
+
+<Layout lang={lang} title={t.nav.projects} description={description} altPath={routes.projects[es ? 'en' : 'es']} current="projects">
+  <section class="page-head wrap">
+    <h1 class="display h1">{t.nav.projects}</h1>
+  </section>
+
+  <section class="wrap index" data-index data-view="grid">
+    <div class="index__bar">
+      <div class="index__filters">
+        <div class="index__group" role="group" aria-label={t.filters.typology}>
+          <span class="label">{t.filters.typology}</span>
+          <button type="button" class="chip is-active" data-filter="typology" data-value="all">{t.filters.all}</button>
+          {
+            typologies.map((value) => (
+              <button type="button" class="chip" data-filter="typology" data-value={value}>
+                {t.typology[value]}
+              </button>
+            ))
+          }
+        </div>
+        <div class="index__group" role="group" aria-label={t.filters.country}>
+          <span class="label">{t.filters.country}</span>
+          <button type="button" class="chip is-active" data-filter="country" data-value="all">{t.filters.all}</button>
+          {
+            countries.map((value) => (
+              <button type="button" class="chip" data-filter="country" data-value={value}>
+                {t.country[value]}
+              </button>
+            ))
+          }
+        </div>
+      </div>
+      <div class="index__view" role="group">
+        <button type="button" class="chip is-active" data-view-btn="grid">{t.filters.grid}</button>
+        <button type="button" class="chip" data-view-btn="list">{t.filters.list}</button>
+      </div>
+    </div>
+
+    <ul class="index__items">
+      {
+        projects.map((p, i) => (
+          <li class="item" data-item data-typology={p.typology} data-country={p.country}>
+            <a href={projectUrl(lang, p.slug)}>
+              <div class="item__img">
+                <Image
+                  src={cover(p.slug)}
+                  alt={`${p.name[lang]}: ${p.summary[lang]}`}
+                  widths={[480, 800, 1200]}
+                  sizes="(min-width: 1100px) 33vw, (min-width: 700px) 50vw, 100vw"
+                  loading={i < 3 ? 'eager' : 'lazy'}
+                  quality={78}
+                />
+              </div>
+              <div class="item__row">
+                <span class="item__name">{p.name[lang]}</span>
+                <span class="item__cell">{t.typology[p.typology]}</span>
+                <span class="item__cell">{t.country[p.country]}</span>
+                <span class="item__cell item__year">{p.year}</span>
+              </div>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="index__none" data-none hidden>{t.filters.none}</p>
+  </section>
+</Layout>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-index]');
+  if (root) {
+    const items = [...root.querySelectorAll<HTMLElement>('[data-item]')];
+    const none = root.querySelector<HTMLElement>('[data-none]');
+    const state: Record<string, string> = { typology: 'all', country: 'all' };
+
+    const apply = () => {
+      let visible = 0;
+      items.forEach((item) => {
+        const show =
+          (state.typology === 'all' || item.dataset.typology === state.typology) &&
+          (state.country === 'all' || item.dataset.country === state.country);
+        item.hidden = !show;
+        if (show) visible++;
+      });
+      if (none) none.hidden = visible > 0;
+    };
+
+    root.querySelectorAll<HTMLButtonElement>('[data-filter]').forEach((btn) =>
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.filter!;
+        state[key] = btn.dataset.value!;
+        root.querySelectorAll(`[data-filter="${key}"]`).forEach((b) => b.classList.toggle('is-active', b === btn));
+        apply();
+      }),
+    );
+
+    const setView = (view: string) => {
+      root.dataset.view = view;
+      root.querySelectorAll<HTMLButtonElement>('[data-view-btn]').forEach((b) => b.classList.toggle('is-active', b.dataset.viewBtn === view));
+      try {
+        localStorage.setItem('od-view', view);
+      } catch {}
+    };
+    root.querySelectorAll<HTMLButtonElement>('[data-view-btn]').forEach((btn) => btn.addEventListener('click', () => setView(btn.dataset.viewBtn!)));
+    try {
+      const saved = localStorage.getItem('od-view');
+      if (saved === 'list' || saved === 'grid') setView(saved);
+    } catch {}
+  }
+</script>
+
+<style>
+  .index {
+    padding-bottom: clamp(4rem, 10vw, 9rem);
+  }
+  .index__bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1.5rem 3rem;
+    padding-block: 1.5rem;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    margin-bottom: clamp(2rem, 4vw, 3.5rem);
+  }
+  .index__filters {
+    display: grid;
+    gap: 0.75rem;
+  }
+  .index__group,
+  .index__view {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.4rem 1.4rem;
+  }
+  .index__group .label {
+    min-width: 5.5rem;
+  }
+  .chip {
+    font-family: var(--display);
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--mid);
+    padding-block: 0.2rem;
+    border-bottom: 1px solid transparent;
+    transition: color 0.3s ease, border-color 0.3s ease;
+  }
+  .chip:hover {
+    color: var(--ink);
+  }
+  .chip.is-active {
+    color: var(--ink);
+    border-bottom-color: var(--ink);
+  }
+  .item[hidden] {
+    display: none;
+  }
+  .item a {
+    display: block;
+  }
+  .item__img {
+    overflow: hidden;
+    background: var(--bone);
+    aspect-ratio: 3 / 2;
+  }
+  .item__img :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1.2s cubic-bezier(0.2, 0.6, 0.2, 1);
+  }
+  .item__name {
+    font-family: var(--display);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .item__cell {
+    color: var(--mid);
+    font-size: 0.8rem;
+  }
+  .index__none {
+    padding-block: 3rem;
+    color: var(--mid);
+  }
+
+  /* Vista en cuadrícula */
+  [data-view='grid'] .index__items {
+    display: grid;
+    gap: clamp(2.5rem, 4vw, 3.5rem) clamp(1.25rem, 2vw, 2rem);
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+  }
+  [data-view='grid'] .item a:hover img {
+    transform: scale(1.04);
+  }
+  [data-view='grid'] .item__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 0.5rem;
+    padding-top: 0.9rem;
+  }
+  [data-view='grid'] .item__name {
+    font-size: 1.25rem;
+    flex: 1 0 100%;
+  }
+  [data-view='grid'] .item__cell + .item__cell::before {
+    content: '· ';
+  }
+
+  /* Vista en lista */
+  [data-view='list'] .index__items {
+    position: relative;
+  }
+  [data-view='list'] .item {
+    border-bottom: 1px solid var(--line);
+  }
+  [data-view='list'] .item a {
+    position: relative;
+  }
+  [data-view='list'] .item__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 0.25rem 1.5rem;
+    padding-block: 1.1rem;
+    transition: padding 0.4s ease, color 0.3s ease;
+  }
+  [data-view='list'] .item__name {
+    font-size: clamp(1.5rem, 3vw, 2.4rem);
+    font-weight: 300;
+  }
+  [data-view='list'] .item__cell:not(.item__year) {
+    display: none;
+  }
+  [data-view='list'] .item__img {
+    display: none;
+  }
+  @media (min-width: 900px) {
+    [data-view='list'] .item__row {
+      grid-template-columns: minmax(0, 1.6fr) 20rem minmax(0, 1fr) minmax(0, 1fr) 4rem;
+    }
+    [data-view='list'] .item__cell:not(.item__year) {
+      display: block;
+    }
+    [data-view='list'] .item__name + .item__cell {
+      grid-column: 3;
+    }
+    [data-view='list'] .item__year {
+      text-align: right;
+    }
+    [data-view='list'] .item a:hover .item__row {
+      padding-left: 1rem;
+    }
+    [data-view='list'] .item__img {
+      display: block;
+      position: absolute;
+      z-index: 2;
+      left: calc((100% - 30rem) * 0.444 + 1.5rem);
+      top: 50%;
+      width: 18rem;
+      transform: translateY(-50%);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+      box-shadow: 0 20px 50px rgba(35, 31, 32, 0.18);
+    }
+    [data-view='list'] .item a:hover .item__img {
+      opacity: 1;
+    }
+  }
+</style>
